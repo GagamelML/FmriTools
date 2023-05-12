@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-EPI <-> ANA registration
+ANA <-> EPI registration
+Segmentation
 
 The purpose of the following script is to compute the deformation field for the
 registration between antomy and EPI in native space. The mask should be in ana
@@ -16,6 +17,7 @@ script consists of the following steps:
     8. clean deformations
     9. expand deformations
     10. apply deformation
+    11. start segmentation
 
 The script needs an installation of freesurfer and ants.
 
@@ -29,6 +31,7 @@ import shutil as sh
 import nibabel as nb
 from nipype.interfaces.ants import N4BiasFieldCorrection
 from nighres.registration import embedded_antsreg, apply_coordinate_mappings
+from nighres.segmentation import fuzzy_cmeans
 
 # local inputs
 from fmri_tools.cmap.clean_coordinate_mapping import clean_coordinate_mapping
@@ -39,11 +42,11 @@ from fmri_tools.registration.mask_epi import mask_epi
 from fmri_tools.registration.clean_ana import clean_ana
 
 # input data
-file_mean_epi = "/data/tu_mlohoff/ABC_MRI/2023-03-01_Sess12_40108.fb/imagedata/epi/meanS9_kp_epi2d_v1c3_1p5_R4x2_pF_MTCon_TR60_TE11p8-27p8_27.8.nii"
-file_t1 = "/data/tu_mlohoff/ABC_MRI/2023-03-01_Sess12_40108.fb/imagedata/mp2range/S4_mp2rage_0p7_iPAT2_phPF68_FA5-3_TI900-2750_BW250_T1_Images_2.01.nii"
-file_mask1 = "/data/tu_mlohoff/ABC_MRI/2023-03-01_Sess12_40108.fb/fmritools/skull/skullstrip_mask.nii"  # skullstrip_mask
+file_mean_epi = "/data/p_02808/Sessions/2023-04-18_S06_15636.fa/imagedata/epi/meanS12_kp_epi2d_v1c3_1p5_R4x2_pF_MTCon_TR60_TE11p8-27p8_11.8.nii"
+file_t1 = "/data/p_02808/Sessions/2023-04-18_S06_15636.fa/imagedata/mp2rage/S4_mp2rage_0p7_iPAT2_phPF68_FA5-3_TI900-2750_BW250_T1_Images_2.01.nii"
+file_mask1 = "/data/p_02808/Sessions/2023-04-18_S06_15636.fa/fmritools/skull/skullstrip_mask.nii"  # skullstrip_mask
 file_mask2 = None  # brain.finalsurfs
-path_output = "/data/tu_mlohoff/ABC_MRI/2023-03-01_Sess12_40108.fb/fmritools"
+path_output = "/data/p_02808/Sessions/2023-04-18_S06_15636.fa/fmritools"
 clean_cmap = True
 expand_cmap = True
 cleanup = False
@@ -133,7 +136,7 @@ embedded_antsreg(os.path.join(path_t1, "pT1.nii"),  # source image
                  ignore_affine=False,  # ignore the affine matrix information extracted from the image header
                  ignore_header=False,  # ignore the orientation information and affine matrix information extracted from the image header
                  save_data=True,  # save output data to file
-                 overwrite=True,  # overwrite existing results
+                 overwrite=False,  # overwrite existing results
                  output_dir=path_syn,  # output directory
                  file_name="syn",  # output basename
                  )
@@ -175,28 +178,19 @@ apply_coordinate_mappings(file_t1,  # input
                           interpolation="linear",  # nearest or linear
                           padding="zero",  # closest, zero or max
                           save_data=True,  # save output data to file (boolean)
-                          overwrite=True,  # overwrite existing results (boolean)
+                          overwrite=False,  # overwrite existing results (boolean)
                           output_dir=path_output,  # output directory
                           file_name="ana2epi_example"  # base name with file extension for output
                           )
 
-# epi -> ana
-apply_coordinate_mappings(file_mean_epi,  # input
-                          os.path.join(path_output, "epi2ana.nii.gz"),  # cmap
-                          interpolation="linear",  # nearest or linear
-                          padding="zero",  # closest, zero or max
-                          save_data=True,  # save output data to file (boolean)
-                          overwrite=True,  # overwrite existing results (boolean)
-                          output_dir=path_output,  # output directory
-                          file_name="epi2ana_example"  # base name with file extension for output
-                          )
 
 # rename final deformation examples
 os.rename(os.path.join(path_output, "ana2epi_example_def-img.nii.gz"),
-          os.path.join(path_output, "ana2epi_example.nii.gz"))
-os.rename(os.path.join(path_output, "epi2ana_example_def-img.nii.gz"),
-          os.path.join(path_output, "epi2ana_example.nii.gz"))
+          os.path.join(path_output, "ana2epi_t1w.nii.gz"))
 
 # clean intermediate files
 if cleanup:
     sh.rmtree(path_temp, ignore_errors=True)
+
+
+

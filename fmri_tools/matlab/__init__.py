@@ -44,7 +44,7 @@ class MatlabCommand:
         # change to matlab folder and execute script
         path_current = os.path.abspath(os.getcwd())
         os.chdir(self.path)
-        command = "matlab -nodisplay -nodesktop -r \"" + \
+        command = "/afs/cbs.mpg.de/software/matlab/currentversion.debian-bullseye-amd64/debian-bullseye-amd64/bin/matlab -nodisplay -nodesktop -r \"" + \
                   self.fname + "(" + cmd_args[:-1] + "); exit;\""
         print("Execute: " + command)
         os.system(command)

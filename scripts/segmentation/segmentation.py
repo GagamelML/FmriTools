@@ -63,10 +63,10 @@ from fmri_tools.mapping.map2grid import map2grid
 from fmri_tools.matlab import MatlabCommand
 
 # input data
-fileUNI = "/data/pt_01880/Experiment1_ODC/p1/anatomy/S6_MP2RAGE_0p7_UNI_Images_2.45.nii"
-fileINV1 = "/data/pt_01880/Experiment1_ODC/p1/anatomy/S3_MP2RAGE_0p7_INV1_2.45.nii"
-fileINV2 = "/data/pt_01880/Experiment1_ODC/p1/anatomy/S4_MP2RAGE_0p7_INV2_2.45.nii"
-pathEXPERT = "/data/hu_haenelt/projects/FmriTools/scripts/segmentation"
+fileUNI = "/data/tu_mlohoff/ABC_MRI/2023-03-01_Sess12_40108.fb/imagedata/mp2range/S5_mp2rage_0p7_iPAT2_phPF68_FA5-3_TI900-2750_BW250_UNI_Images_2.01.nii"
+fileINV1 = "/data/tu_mlohoff/ABC_MRI/2023-03-01_Sess12_40108.fb/imagedata/mp2range/S2_mp2rage_0p7_iPAT2_phPF68_FA5-3_TI900-2750_BW250_INV1_2.01.nii"
+fileINV2 = "/data/tu_mlohoff/ABC_MRI/2023-03-01_Sess12_40108.fb/imagedata/mp2range/S3_mp2rage_0p7_iPAT2_phPF68_FA5-3_TI900-2750_BW250_INV2_2.01.nii"
+pathEXPERT = "/data/hu_mlohoff/Documents/MATLAB/FmriTools-master/scripts/segmentation/"
 namePATCH = "occip"
 sub = "freesurfer"
 part = 1
@@ -134,7 +134,8 @@ if part == 1:
     # autorecon1 without skullstrip removal
     print("Autorecon1")
     os.system(
-        "recon-all"
+        "FREESURFER"
+        + " recon-all"
         + " -i "
         + os.path.join(path_bias, "mn" + file)
         + " -hires"
