@@ -29,7 +29,7 @@ def calc_inner_fit(epi1_data_x, epi2_data_x, epi1_TE, epi2_TE):
                 fit = get_fit_TE(val1, epi1_TE, val2, epi2_TE)
                 S0_map_data_x[y, z, t] = fit[0]
                 T2s_map_data_x[y, z, t] = fit[1]
-    return S0_map_data_x.copy(), T2s_map_data_x.copy()
+    return S0_map_data_x, T2s_map_data_x
 
 def calc_echotimes(epi1: str, epi1_TE: float, epi2: str, epi2_TE: float,
                    out_name: str, out_dir: str = None, overwrite: bool = False,
@@ -89,11 +89,11 @@ def calc_echotimes(epi1: str, epi1_TE: float, epi2: str, epi2_TE: float,
     S0_map_data = np.zeros(shape)
     T2s_map_data = np.zeros(shape)
 
-    with ThreadPoolExecutor(max_workers=30) as tp:
+    with ProcessPoolExecutor() as tp:
         threads = dict()
         for x in range(shape[0]):
-            epi1_data_x = epi1_data[x, :, :, :].copy()
-            epi2_data_x = epi2_data[x, :, :, :].copy()
+            epi1_data_x = epi1_data[x, :, :, :]
+            epi2_data_x = epi2_data[x, :, :, :]
             print(f'submitting {x}')
             threads[x] = tp.submit(calc_inner_fit, epi1_data_x, epi2_data_x, epi1_TE, epi2_TE)
         for x in range(shape[0]):
